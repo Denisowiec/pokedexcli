@@ -2,18 +2,20 @@ package main
 
 import (
 	"strings"
-	//"unicode"
+
+	"github.com/Denisowiec/pokedexcli/internal/pokecache"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 type config struct {
 	previous string
 	next     string
+	cache    pokecache.Cache
 }
 
 func listCommands() map[string]cliCommand {
@@ -37,6 +39,11 @@ func listCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "List the previous batch of 20 location areas in the worl of Pokemon",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "List all Pokemon that can be found in a given location area",
+			callback:    commandExplore,
 		},
 	}
 }
