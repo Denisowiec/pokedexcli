@@ -15,6 +15,7 @@ func startRepl() {
 		next:     "",
 		previous: "",
 		cache:    pokecache.NewCache(5 * time.Second),
+		pokedex:  map[string]Pokemon{},
 	}
 
 	for {
