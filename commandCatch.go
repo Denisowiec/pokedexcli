@@ -6,7 +6,7 @@ import (
 	"math/rand"
 )
 
-type returnedPokemon struct {
+type Pokemon struct {
 	Abilities []struct {
 		Ability struct {
 			Name string `json:"name"`
@@ -24,13 +24,32 @@ type returnedPokemon struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
 	} `json:"forms"`
-	ID           int `json:"id"`
-	NumberCaught int
+	Height int    `json:"height"`
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Stats  []struct {
+		BaseStat int `json:"base_stat"`
+		Effort   int `json:"effort"`
+		Stat     struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"stat"`
+	} `json:"stats"`
+	Types []struct {
+		Slot int `json:"slot"`
+		Type struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"type"`
+	} `json:"types"`
+	Weight int `json:"weight"`
+	// This one is added for the sake of this program and not part of PokeApi:
+	numberCaught int
 }
 
 func commandCatch(cfg *config, args []string) error {
 	pokeName := args[0]
-	fmt.Printf("Throwing a Pokeball at %v\n", pokeName)
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokeName)
 
 	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s/", pokeName)
 
@@ -39,24 +58,21 @@ func commandCatch(cfg *config, args []string) error {
 		return fmt.Errorf("pokemon not found: %v", err)
 	}
 
-	var pokemon returnedPokemon
+	var pokemon Pokemon
 
 	if err = json.Unmarshal(body, &pokemon); err != nil {
 		return err
 	}
 
 	// We calculate the catch chance base on the inverse of experience given
-	invExperience := 300 - pokemon.BaseExperience
 	catchChance := rand.Intn(300)
 
-	if catchChance > invExperience {
+	if catchChance > pokemon.BaseExperience {
 		fmt.Printf("%s was caught!\n", pokeName)
 		item, ok := cfg.pokedex[pokeName]
 		if !ok {
-			cfg.pokedex[pokeName] = Pokemon{
-				name:         pokeName,
-				numberCaught: 1,
-			}
+			pokemon.numberCaught = 1
+			cfg.pokedex[pokeName] = pokemon
 			item = cfg.pokedex[pokeName]
 		} else {
 			item.numberCaught += 1

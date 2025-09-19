@@ -19,11 +19,6 @@ type config struct {
 	pokedex  map[string]Pokemon
 }
 
-type Pokemon struct {
-	name         string
-	numberCaught int
-}
-
 func listCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {
@@ -55,6 +50,16 @@ func listCommands() map[string]cliCommand {
 			name:        "catch",
 			description: "Attempt to catch a pokemon and add it to your pokedex",
 			callback:    commandCatch,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect a pokemon in your pokedex",
+			callback:    commandInspect,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "List all pokemon in your pokedex",
+			callback:    commandPokedex,
 		},
 	}
 }
