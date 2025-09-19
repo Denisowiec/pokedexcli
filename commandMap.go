@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/Denisowiec/pokedexcli/internal/pokecache"
 )
@@ -20,30 +18,9 @@ type locAreas struct {
 }
 
 func getAreas(url string, cache *pokecache.Cache) (locAreas, error) {
-	var body []byte
-
-	// We check if the url requested is present in the cache
-	val, ok := cache.Get(url)
-	if ok {
-		body = val
-	} else {
-		// Not in cache, so we proceed to download it off the Internet, and save the result in cache
-		res, err := http.Get(url)
-		if err != nil {
-			return locAreas{}, fmt.Errorf("error downloading the data: %v", err)
-		}
-		defer res.Body.Close()
-
-		if res.StatusCode != http.StatusOK {
-			return locAreas{}, fmt.Errorf("error fetching the data: %v", res.Status)
-		}
-
-		body, err = io.ReadAll(res.Body)
-		if err != nil {
-			return locAreas{}, fmt.Errorf("error reading the data: %v", err)
-		}
-
-		cache.Add(url, body)
+	body, err := getData(url, cache)
+	if err != nil {
+		return locAreas{}, err
 	}
 
 	returnedAreas := locAreas{}
